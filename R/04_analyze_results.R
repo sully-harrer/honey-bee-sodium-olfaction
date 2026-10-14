@@ -135,11 +135,12 @@ visits_sodium <- get_sodium(model_results$visits$salt)
 
 # print results
 report_result <- function(label, res, stat = "estimate") {
+  f <- function(x) sprintf("%.2f", x)
   message(
-    label, ": ", stat, " = ", round(res$est, 2),
-    ", 95% CI [", round(res$lower, 2), ", ", round(res$upper, 2), "]",
-    ", z = ", round(res$z, 2),
-    ", p = ", signif(res$p, 2)
+    label, ": ", stat, " = ", f(res$est),
+    ", 95% CI [", f(res$lower), ", ", f(res$upper), "]",
+    ", z = ", f(res$z),
+    ", p = ", f(res$p)
   )
 }
 

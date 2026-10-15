@@ -4,7 +4,8 @@
 #   B: proportion of time in treatment arm
 #   C: visit count to treatment and control arms
 # Requires 01_clean_data.R and 02_fit_models.R to have been run.
-# Outputs plots/Figure2_Behavioral_Metrics.png
+# Also produces Figure S2 (DHARMa residual checks for the three models).
+# Outputs plots/Figure2_Behavioral_Metrics.png, plots/FigureS2_DHARMa_Checks.png
 # ==============================================================================
 
 library(dplyr)
@@ -20,8 +21,8 @@ sim_choice <- simulateResiduals(model_results$choice$best)
 sim_time   <- simulateResiduals(model_results$time$best)
 sim_visits <- simulateResiduals(model_results$visits$best)
 
-# Output Figure 1
-png(here::here("plots", "FigureS3_DHARMa_Checks.png"), 
+# Output Figure S2
+png(here::here("plots", "FigureS2_DHARMa_Checks.png"),
     width = 10, height = 12, units = "in", res = 600)
 
 par(mfrow = c(3, 2), mar = c(4, 4, 6, 2))
@@ -74,6 +75,8 @@ plotResiduals(sim_visits)
 
 dev.off()
 
+
+# Output Figure 2
 trial_data <- readRDS(here::here("data", "processed", "trial_data_clean.rds")) |>
   # Ensure trial_ID is a factor so geom_line connects paired observations correctly
   mutate(trial_ID = as.factor(trial_ID)) 

@@ -15,5 +15,6 @@ source(here::here("R", "01_clean_data.R"))
 source(here::here("R", "02_fit_models.R"))
 source(here::here("R", "04_analyze_results.R"))
 source(here::here("R", "05_make_plots.R"))
+source(here::here("R", "06_make_map.R"))
 
 message("Pipeline complete. See data/processed/, results/, and plots/.")

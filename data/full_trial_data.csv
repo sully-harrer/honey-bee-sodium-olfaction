@@ -66,7 +66,7 @@ start_date,cage_id,species,batch_id,starving_since,temp,start_time,trt_arm,first
 7/10/2026,3,Apis mellifera,9B,12:30:00 PM,21.3,3:30:00 PM,L,R,0:24,10,11,3:58,8:05,FALSE,high,
 7/10/2026,3,Apis mellifera,9B,12:30:00 PM,21.4,4:00:00 PM,R,R,0:07,12,21,1:27,10:30,FALSE,high,
 7/10/2026,3,Apis mellifera,9B,12:30:00 PM,21.4,4:30:00 PM,L,R,0:15,11,11,2:05,9:34,FALSE,high,
-7/14/2026,1,Apis mellifera,10A,9:00:00 AM,20.9,12:00:00 PM,R,R,0:36,9,13,4:50,6:21,FALSE,high,rught arm repaired pretrial (cement applied 7/10/24)
+7/14/2026,1,Apis mellifera,10A,9:00:00 AM,20.9,12:00:00 PM,R,R,0:36,9,13,4:50,6:21,FALSE,high,rught arm repaired pretrial (cement applied 7/10/26)
 7/14/2026,1,Apis mellifera,10A,9:00:00 AM,20.7,12:30:00 PM,L,R,0:26,2,2,10:15,4:14,FALSE,high,
 7/14/2026,1,Apis mellifera,10A,9:00:00 AM,20.7,1:00:00 PM,R,NA,0:00,0,0,0:00,0:00,TRUE,high,Didn't move from y-maze base
 7/14/2026,1,Apis mellifera,10A,9:00:00 AM,20.8,1:30:00 PM,R,R,0:22,4,5,4:57,8:40,FALSE,high,

@@ -3,7 +3,7 @@
 # Produces:
 # - clean processed data (csv and rds) located in data/processed
 # - model results located in results/
-# - all plots specified in "03_make_plots.R" located in plots/
+# - all plots (produced by 05_make_plots.R and 06_make_map.R) located in plots/
 
 # 03_check_diagnostics.R is not run here intentionally, as those diagnostics
 # should be manually reviewed for model fit when necessary

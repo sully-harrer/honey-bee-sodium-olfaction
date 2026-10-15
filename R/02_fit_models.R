@@ -7,7 +7,7 @@
 # All the pre-specified candidate models were intentionally chosen by
 # considering what combinations are biologically meaningful and feasible.
 # Requires 01_clean_data.R to have been run.
-# Outputs results/model_results.rds, results/model_comparison_tables.txt
+# Outputs results/model_results.rds
 # ==============================================================================
 
 library(glmmTMB)

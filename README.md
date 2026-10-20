@@ -54,8 +54,7 @@ source(here::here("R", "main.R"))
 | `01_clean_data.R` | Join raw CSVs and derive analysis variables | `data/processed/trial_data_clean.rds`, `trial_data_clean.csv` |
 | `02_fit_models.R` | Fit candidate GLMMs for each behavioral metric and compare models using AICc | `results/model_results.rds` |
 | `04_analyze_results.R` | Generate descriptive statistics, model-selection tables, and selected-model estimates | Console output |
-| `05_make_plots.R` | Generate Figure 2 (behavioral metrics) and Figure S2 (DHARMa diagnostic plots) | `plots/Figure2_Behavioral_Metrics.png`, `plots/FigureS2_DHARMa_Checks.png` |
-| `06_make_map.R` | Generate Figure S1 (bee collection locations) | `plots/FigureS1_Collection_Locations.png` |
+| `05_make_plots.R` | Generate Figure 2 (behavioral metrics), Figure S1 (bee collection locations), and Figure S2 (DHARMa diagnostic plots), each as a vector PDF and a 600 dpi PNG | `plots/Figure2_Behavioral_Metrics`, `plots/FigureS1_Collection_Locations`, `plots/FigureS2_DHARMa_Checks` (`.pdf` and `.png`) |
 
 **Model diagnostics:** `03_check_diagnostics.R` is not included in the automated pipeline. It generates DHARMa residual diagnostics for interactive assessment of model fit and can be run separately when needed.
 
@@ -67,11 +66,10 @@ The analysis uses R and the following packages:
 install.packages(c(
   "here", "lubridate", "dplyr", "tidyr", "tibble", "knitr",
   "glmmTMB", "MuMIn", "DHARMa",
-  "ggplot2", "showtext", "patchwork", "sf", "ggspatial"
+  "Hmisc", "ggplot2", "patchwork", "ragg", "systemfonts",
+  "sf", "ggspatial", "rosm"
 ))
 ```
-
-The collection-location map (`06_make_map.R`) downloads OpenStreetMap tiles on its first run and caches them in `rosm.cache/`, which is excluded from version control.
 
 ## Citation
 

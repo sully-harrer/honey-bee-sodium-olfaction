@@ -71,6 +71,18 @@ install.packages(c(
 ))
 ```
 
+## License
+
+Different parts of this repository are licensed separately:
+
+| Content | License | File |
+|---|---|---|
+| Code (`R/` and other scripts) | MIT | [`LICENSE`](LICENSE) |
+| Data (`data/`) | CC BY 4.0 | [`data/LICENSE`](data/LICENSE) |
+| Y-maze design files (`CAD/`) | CC BY 4.0 | [`CAD/LICENSE`](CAD/LICENSE) |
+
+If you reuse any of these, please cite the repository as described in [`CITATION.cff`](CITATION.cff).
+
 ## Citation
 
 Publication and repository citation information will be added when available.

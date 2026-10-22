@@ -32,8 +32,10 @@ library(prettymapr)
 
 font_family <- "Arial"
 if (!font_family %in% systemfonts::system_fonts()$family) {
-  stop("The font '", font_family, "' is not installed on this machine. ",
-       "Install it, then re-run this script.")
+  stop(
+    "The font '", font_family, "' is not installed on this machine. ",
+    "Install it, then re-run this script."
+  )
 }
 
 base_size <- 8 # tick labels, legend text
@@ -45,8 +47,8 @@ tag_levels <- if (tag_case == "upper") "A" else "a"
 tag_label <- function(i) if (tag_case == "upper") LETTERS[i] else letters[i]
 
 fig2_size <- c(width = 174, height = 70)
-figS1_size <- c(width = 84,  height = 84)
-figS2_size <- c(width = 174, height = 190)
+fig_s1_size <- c(width = 84, height = 84)
+fig_s2_size <- c(width = 174, height = 190)
 png_dpi <- 600
 
 arm_colors <- c(ctrl = "#0072B2", trt = "#E69F00")
@@ -70,8 +72,10 @@ theme_manuscript <- function() {
       axis.ticks.length = unit(1.5, "pt"),
       legend.position = "none",
       plot.title = element_text(size = title_size, face = "bold", hjust = 0),
-      plot.tag = element_text(size = tag_size, face = "bold",
-                              family = font_family),
+      plot.tag = element_text(
+        size = tag_size, face = "bold",
+        family = font_family
+      ),
       plot.tag.location = "margin",
       plot.tag.position = "topleft",
       plot.background = element_rect(fill = "white", color = NA),
@@ -81,11 +85,13 @@ theme_manuscript <- function() {
 
 save_figure <- function(plot, name, size) {
   ggsave(here::here("plots", paste0(name, ".pdf")), plot,
-         width = size[["width"]], height = size[["height"]], units = "mm",
-         device = cairo_pdf, bg = "white")
+    width = size[["width"]], height = size[["height"]], units = "mm",
+    device = cairo_pdf, bg = "white"
+  )
   ggsave(here::here("plots", paste0(name, ".png")), plot,
-         width = size[["width"]], height = size[["height"]], units = "mm",
-         dpi = png_dpi, device = ragg::agg_png, bg = "white")
+    width = size[["width"]], height = size[["height"]], units = "mm",
+    dpi = png_dpi, device = ragg::agg_png, bg = "white"
+  )
 }
 
 
@@ -100,7 +106,8 @@ set.seed(seed)
 choice_data <- trial_data |>
   mutate(
     choice = factor(if_else(chose_trt == 1, "trt", "ctrl"),
-                    levels = c("ctrl", "trt")),
+      levels = c("ctrl", "trt")
+    ),
     x = 1 + runif(n(), -0.3, 0.3) # computes horizontal jitter in advance
   )
 
@@ -117,8 +124,10 @@ choice_summary <- data.frame(
 )
 
 choice_plot <- ggplot(choice_data, aes(x = x, y = chose_trt)) +
-  geom_hline(yintercept = 0.5, linetype = "dashed",
-             linewidth = pt(0.5), color = "gray40") +
+  geom_hline(
+    yintercept = 0.5, linetype = "dashed",
+    linewidth = pt(0.5), color = "gray40"
+  ) +
   geom_point(
     aes(color = choice, shape = choice),
     alpha = 0.4,
@@ -192,11 +201,15 @@ paired_plot <- function(data, y_label) {
     theme_manuscript()
 }
 
-time_plot <- paired_plot(filter(plot_data, metric == "time_secs"),
-                         "Time spent (s)")
+time_plot <- paired_plot(
+  filter(plot_data, metric == "time_secs"),
+  "Time spent (s)"
+)
 
-visit_plot <- paired_plot(filter(plot_data, metric == "visits"),
-                          "Number of visits")
+visit_plot <- paired_plot(
+  filter(plot_data, metric == "visits"),
+  "Number of visits"
+)
 
 figure_2 <- choice_plot + time_plot + visit_plot +
   plot_layout(ncol = 3, widths = c(1, 1.2, 1.2)) +
@@ -215,7 +228,7 @@ model_results <- readRDS(here::here("results", "model_results.rds"))
 
 set.seed(seed)
 sim_choice <- simulateResiduals(model_results$choice$best)
-sim_time   <- simulateResiduals(model_results$time$best)
+sim_time <- simulateResiduals(model_results$time$best)
 sim_visits <- simulateResiduals(model_results$visits$best)
 
 residual_quantiles <- c(0.25, 0.5, 0.75)
@@ -225,8 +238,10 @@ qq_panel <- function(sim) {
   qq_data <- data.frame(expected = ppoints(length(res)), observed = res)
 
   ggplot(qq_data, aes(x = expected, y = observed)) +
-    geom_abline(slope = 1, intercept = 0,
-                linewidth = pt(0.6), color = "gray50") +
+    geom_abline(
+      slope = 1, intercept = 0,
+      linewidth = pt(0.6), color = "gray50"
+    ) +
     geom_point(shape = 1, size = 0.9, stroke = pt(0.5), color = "black") +
     scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
     scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
@@ -245,9 +260,11 @@ residual_panel <- function(sim) {
   as_factor <- n_unique == 1 || (n_unique < 10 && length(pred) / n_unique > 10)
 
   x_title <- "Model predictions (rank transformed)"
-  reference_lines <- geom_hline(yintercept = residual_quantiles,
-                                linetype = "dashed", linewidth = pt(0.5),
-                                color = "gray40")
+  reference_lines <- geom_hline(
+    yintercept = residual_quantiles,
+    linetype = "dashed", linewidth = pt(0.5),
+    color = "gray40"
+  )
 
   if (as_factor) {
     group <- factor(round(pred, 2))
@@ -257,13 +274,17 @@ residual_panel <- function(sim) {
     })
     flagged <- p.adjust(p_values) < 0.05
     box_data <- data.frame(group = group, res = res)
-    box_fill <- setNames(ifelse(flagged, signal_color, "gray85"),
-                         levels(group))
+    box_fill <- setNames(
+      ifelse(flagged, signal_color, "gray85"),
+      levels(group)
+    )
 
     p <- ggplot(box_data, aes(x = group, y = res, fill = group)) +
       reference_lines +
-      geom_boxplot(width = 0.5, linewidth = pt(0.6), color = "black",
-                   outlier.shape = NA) +
+      geom_boxplot(
+        width = 0.5, linewidth = pt(0.6), color = "black",
+        outlier.shape = NA
+      ) +
       scale_fill_manual(values = box_fill)
 
     if (nlevels(group) == 1) {
@@ -273,8 +294,10 @@ residual_panel <- function(sim) {
       p <- p + theme_manuscript()
     }
   } else {
-    test <- testQuantiles(res, pred, quantiles = residual_quantiles,
-                          plot = FALSE)
+    test <- testQuantiles(res, pred,
+      quantiles = residual_quantiles,
+      plot = FALSE
+    )
     fits <- test$predictions
     curves <- do.call(rbind, lapply(seq_along(residual_quantiles), function(i) {
       data.frame(
@@ -290,8 +313,10 @@ residual_panel <- function(sim) {
       reference_lines +
       geom_ribbon(
         data = curves,
-        aes(x = pred, ymin = fit - se, ymax = fit + se,
-            group = quantile, fill = flagged),
+        aes(
+          x = pred, ymin = fit - se, ymax = fit + se,
+          group = quantile, fill = flagged
+        ),
         inherit.aes = FALSE, alpha = 0.2
       ) +
       geom_point(shape = 1, size = 0.9, stroke = pt(0.5), color = "black") +
@@ -316,16 +341,20 @@ residual_panel <- function(sim) {
 text_panel <- function(label, size = title_size, face = "bold", hjust = 0.5,
                        tag = NULL) {
   ggplot() +
-    annotate("text", x = hjust, y = 0.5, label = label, hjust = hjust,
-             size = size / ggplot2::.pt, fontface = face,
-             family = font_family) +
+    annotate("text",
+      x = hjust, y = 0.5, label = label, hjust = hjust,
+      size = size / ggplot2::.pt, fontface = face,
+      family = font_family
+    ) +
     scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
     scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
     labs(tag = tag) +
     theme_void(base_family = font_family) +
     theme(
-      plot.tag = element_text(size = tag_size, face = "bold",
-                              family = font_family),
+      plot.tag = element_text(
+        size = tag_size, face = "bold",
+        family = font_family
+      ),
       plot.tag.location = "margin",
       plot.tag.position = "left"
     )
@@ -362,7 +391,7 @@ JK
 figure_s2 <- wrap_plots(s2_panels, design = s2_design) +
   plot_layout(heights = c(0.08, 0.1, 1, 0.1, 1, 0.1, 1))
 
-save_figure(figure_s2, "FigureS2_DHARMa_Checks", figS2_size)
+save_figure(figure_s2, "FigureS2_DHARMa_Checks", fig_s2_size)
 
 
 # ==============================================================================
@@ -371,7 +400,7 @@ save_figure(figure_s2, "FigureS2_DHARMa_Checks", figS2_size)
 
 rosm::register_tile_source(
   esri_imagery = rosm::as.tile_source(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}",
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}", # nolint: line_length_linter.
     extension = "jpeg",
     max_zoom = 19
   )
@@ -441,9 +470,9 @@ x_lim_m <- view_coords[, 1]
 y_lim_m <- view_coords[, 2]
 
 map_shapes <- c("Collection site" = 21, "Known hive location" = 23)
-map_fills  <- c("Collection site" = "white", "Known hive location" = "#F0E442")
-map_sizes  <- c("Collection site" = 1.6, "Known hive location" = 2.4)
-map_text_cex <- base_size / 12  # ggspatial text is scaled from 12 pt
+map_fills <- c("Collection site" = "white", "Known hive location" = "#F0E442")
+map_sizes <- c("Collection site" = 1.6, "Known hive location" = 2.4)
+map_text_cex <- base_size / 12 # ggspatial text is scaled from 12 pt
 
 fig_s1 <- ggplot() +
   annotation_map_tile(
@@ -527,4 +556,4 @@ fig_s1 <- ggplot() +
     plot.margin = margin(2, 2, 2, 2)
   )
 
-save_figure(fig_s1, "FigureS1_Collection_Locations", figS1_size)
+save_figure(fig_s1, "FigureS1_Collection_Locations", fig_s1_size)

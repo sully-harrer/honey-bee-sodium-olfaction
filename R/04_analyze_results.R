@@ -111,7 +111,7 @@ get_intercept <- function(model) {
 }
 
 choice_res <- get_intercept(model_results$choice$best)
-time_res   <- get_intercept(model_results$time$best)
+time_res <- get_intercept(model_results$time$best)
 visits_res <- get_intercept(model_results$visits$best)
 
 # for second paragraph stats about sodium level's impact
@@ -119,7 +119,7 @@ get_sodium <- function(model) {
   coefs <- summary(model)$coefficients$cond
   row <- grep("sodium", rownames(coefs), ignore.case = TRUE)
   est <- coefs[row, "Estimate"]
-  se  <- coefs[row, "Std. Error"]
+  se <- coefs[row, "Std. Error"]
   data.frame(
     est   = est,
     lower = est - 1.96 * se,
@@ -130,7 +130,7 @@ get_sodium <- function(model) {
 }
 
 choice_sodium <- get_sodium(model_results$choice$salt)
-time_sodium   <- get_sodium(model_results$time$salt)
+time_sodium <- get_sodium(model_results$time$salt)
 visits_sodium <- get_sodium(model_results$visits$salt)
 
 # print results

@@ -24,19 +24,16 @@ parse_datetime <- function(date, time) {
 trial_data <- trial_data |>
   mutate(
     across(c(species, cage_id, batch_id, trt_arm, first_choice, sodium_level), as.factor),
-
     starving_start = parse_datetime(start_date, starving_since),
     trial_start = parse_datetime(start_date, start_time),
 
     # kept as a factor for possible use as a fixed/random effect later
     start_date = as.factor(start_date),
-
     across(c(latency, left_time, right_time), \(x) period_to_seconds(ms(x))),
-
     starvation_duration_mins = as.numeric(difftime(trial_start,
-                                                   starving_start,
-                                                   units = "mins")),
-
+      starving_start,
+      units = "mins"
+    )),
     chose_trt = as.numeric(as.character(first_choice) == as.character(trt_arm)),
 
     # replace L/R columns with trt/ctrl
@@ -71,17 +68,20 @@ trial_data <- trial_data |>
   ) |>
   mutate(
     time_since_sodium_added = as.numeric(difftime(trial_start,
-                                                  sodium_add_datetime,
-                                                  units = "mins")),
+      sodium_add_datetime,
+      units = "mins"
+    )),
     time_of_day_hrs = hour(trial_start) + minute(trial_start) / 60,
-    across(c(starvation_duration_mins,
-             temp, pct_sodium_error,
-             time_since_sodium_added,
-             time_of_day_hrs
-             ),
-           \(x) as.numeric(scale(x)),
-          .names = "{.col}_z"
-          ),
+    across(
+      c(
+        starvation_duration_mins,
+        temp, pct_sodium_error,
+        time_since_sodium_added,
+        time_of_day_hrs
+      ),
+      \(x) as.numeric(scale(x)),
+      .names = "{.col}_z"
+    ),
     prop_trt_time_secs = trt_time_secs / (trt_time_secs + ctrl_time_secs),
   ) |>
   arrange(trial_start) |>
@@ -93,7 +93,7 @@ trial_data <- trial_data |>
     -right_visits,
     -left_time,
     -right_time
-    )
+  )
 
 
 dir.create(here::here("data", "processed"), showWarnings = FALSE, recursive = TRUE)

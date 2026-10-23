@@ -15,6 +15,3 @@ source(here::here("R", "04_analyze_results.R"))
 source(here::here("R", "05_make_plots.R"))
 
 message("Pipeline complete. See data/processed/, results/, and plots/.")
-
-# record the R and package versions used for this run
-print(sessionInfo())

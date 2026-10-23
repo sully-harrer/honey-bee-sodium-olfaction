@@ -41,7 +41,7 @@ shown in Figure S1:
 
 - `full_trial_data.csv` - trial-level behavioral observations, including initial choice, time, and visits
 - `full_collection_data.csv` - bee collection records (location, flower, cage)
-- `full_batch_data.csv` - artificial nectar batch records (target/actual sodium, mixing times)
+- `full_batch_data.csv` - artificial nectar batch records (target/actual NaCl, mixing times)
 - `hive_location.csv` - coordinates of the known hive near the collection sites
 
 Every column, its units, and how the files link together are described in

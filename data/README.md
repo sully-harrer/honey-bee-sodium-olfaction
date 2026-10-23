@@ -74,8 +74,9 @@ Cage numbers are reused, so a cage is identified by (`cage_id`, `parent_batch_id
 
 ## `full_batch_data.csv`
 
-Each batch is 2:1 water:honey artificial nectar with sodium added. Sub-batches made from the same parent
-mix share the parent number (`4A`, `4B`, `4C`).
+Each batch is 2:1 water:honey artificial nectar with NaCl added. Sub-batches made from the same parent
+mix share the parent number (`4A`, `4B`, `4C`). The column and datasheet names say "sodium" or "Na", but
+the amounts are mg of NaCl.
 
 | Column | Datasheet name | Description | Type | Values / units |
 |---|---|---|---|---|
@@ -84,10 +85,10 @@ mix share the parent number (`4A`, `4B`, `4C`).
 | `honey_lot` | Honey lot | Bottle of honey used for the batch | text | `B`-`H` |
 | `mix_date` | Mixing date | Date the water and honey were mixed | date | `M/D/YYYY` |
 | `mix_time` | Mixing time | Time the water and honey were mixed | time | `H:MM:SS AM/PM` |
-| `target_sodium` | Target Na | Sodium needed to bring the batch to its target concentration | number | mg; 306.81 (35 mM, `low`) or 30681 (3500 mM, `high`) |
-| `actual_sodium` | Actual Na | Sodium actually added | number | mg; greater than or equal to 0 |
-| `sodium_add_date` | Date Na added | Date sodium was added | date | `M/D/YYYY`; on or after `mix_date` |
-| `sodium_add_time` | Time Na added | Time sodium was added | time | `H:MM:SS AM/PM` |
+| `target_sodium` | Target Na | NaCl needed to bring the batch to its target concentration | number | mg; 306.81 (35 mM, `low`) or 30681 (3500 mM, `high`) |
+| `actual_sodium` | Actual Na | NaCl actually added | number | mg; greater than or equal to 0 |
+| `sodium_add_date` | Date Na added | Date NaCl was added | date | `M/D/YYYY`; on or after `mix_date` |
+| `sodium_add_time` | Time Na added | Time NaCl was added | time | `H:MM:SS AM/PM` |
 | `notes` | Notes | Observations about the batch | text | free text |
 
 ## `hive_location.csv`
@@ -120,8 +121,8 @@ time.
 | `parent_batch_id` | Number at the start of `batch_id` | integer |
 | `cage_id_char`, `batch_id_char` | Text copies of `cage_id` and `batch_id`, used for the joins | -- |
 | `location`, `flower` | From `full_collection_data.csv` | as above |
-| `pct_sodium_error` | `(target_sodium − actual_sodium) / target_sodium` from the trial's batch; positive = less sodium than targeted | proportion (not %) |
-| `sodium_add_datetime` | Date-time sodium was added to the trial's batch | date-time |
+| `pct_sodium_error` | `(target_sodium − actual_sodium) / target_sodium` from the trial's batch; positive = less NaCl than targeted | proportion (not %) |
+| `sodium_add_datetime` | Date-time NaCl was added to the trial's batch | date-time |
 | `time_since_sodium_added` | `trial_start` − `sodium_add_datetime` | minutes |
 | `time_of_day_hrs` | Trial start time as decimal hours | hours, e.g. 12.5 = 12:30 PM |
 | `starvation_duration_mins_z`, `temp_z`, `pct_sodium_error_z`, `time_since_sodium_added_z`, `time_of_day_hrs_z` | z-scores (mean 0, SD 1) of the matching column, computed across the 100 included trials | SD units |

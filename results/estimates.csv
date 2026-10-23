@@ -1,0 +1,10 @@
+"analysis","response","model","term","scale","est","lower","upper","z","p"
+"proportion","choice",,,"proportion",0.55,,,,
+"proportion","time",,,"proportion",0.523028,,,,
+"proportion","visits",,,"proportion",0.511655,,,,
+"preference","choice","null","(Intercept)","probability",0.550019,0.451541,0.644727,0.99561,0.31944
+"preference","time","null","(Intercept)","probability",0.524549,0.478431,0.570252,1.04339,0.296769
+"preference","visits","null","(Intercept)","probability",0.511655,0.487996,0.535262,0.965521,0.334284
+"sodium","choice","salt","sodium_levellow","log-odds",0.336472,-0.468239,1.14118,0.819516,0.412492
+"sodium","time","salt","sodium_levellow","log-odds",-0.07476,-0.444778,0.295258,-0.395999,0.692106
+"sodium","visits","salt","sodium_levellow","log-odds",0.00610042,-0.183895,0.196096,0.062931,0.949821

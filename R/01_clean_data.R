@@ -14,7 +14,24 @@ batch_data <- read.csv(here::here("data", "full_batch_data.csv"))
 
 exclusion_rate <- mean(trial_data$is_excluded)
 trial_data <- filter(trial_data, !is_excluded)
+n_trials <- nrow(trial_data)
 
+# checks on the raw data so data entry problems stop the pipeline here
+# instead of silently changing the joins or models below
+trial_cage_batch <- paste(
+  trial_data$cage_id,
+  sub("^([0-9]+).*", "\\1", trial_data$batch_id)
+)
+collection_cage_batch <- paste(collection_data$cage_id, collection_data$parent_batch_id)
+stopifnot(
+  "trt_arm must be L or R" = all(trial_data$trt_arm %in% c("L", "R")),
+  "first_choice must be L or R" = all(trial_data$first_choice %in% c("L", "R")),
+  "sodium_level must be low or high" = all(trial_data$sodium_level %in% c("low", "high")),
+  "every trial batch_id must be in full_batch_data.csv" =
+    all(trial_data$batch_id %in% batch_data$batch_id),
+  "every trial (cage_id, parent batch) must be in full_collection_data.csv" =
+    all(trial_cage_batch %in% collection_cage_batch)
+)
 
 # helper function used in the following mutates
 parse_datetime <- function(date, time) {
@@ -95,6 +112,17 @@ trial_data <- trial_data |>
     -right_time
   )
 
+# checks on the cleaned data
+modeled_columns <- c(
+  "chose_trt", "prop_trt_time_secs", "trt_visits", "ctrl_visits",
+  "starvation_duration_mins_z", "trt_arm", "sodium_level", "start_date"
+)
+stopifnot(
+  "joins must not add or drop trials" = nrow(trial_data) == n_trials,
+  "modeled columns must not contain NA" = !anyNA(trial_data[modeled_columns]),
+  "prop_trt_time_secs must be between 0 and 1" =
+    all(trial_data$prop_trt_time_secs >= 0 & trial_data$prop_trt_time_secs <= 1)
+)
 
 dir.create(here::here("data", "processed"), showWarnings = FALSE, recursive = TRUE)
 saveRDS(trial_data, here::here("data", "processed", "trial_data_clean.rds"))

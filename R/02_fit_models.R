@@ -3,9 +3,9 @@
 #   - first arm choice (binary)
 #   - proportion of time in treatment arm
 #   - visit count to treatment and control arms
-# using a set of pre-specified candidate models, then compares them by AICc.
-# All the pre-specified candidate models were intentionally chosen by
-# considering what combinations are biologically meaningful and feasible.
+# using the same set of candidate models for each response, then compares them
+# by AICc. The candidate models were chosen by considering which combinations
+# of predictors are biologically meaningful and feasible.
 # Requires 01_clean_data.R to have been run.
 # Outputs results/model_results.rds
 # ==============================================================================
@@ -16,31 +16,33 @@ library(dplyr)
 
 trial_data <- readRDS(here::here("data", "processed", "trial_data_clean.rds"))
 
-# Each response variable gets the same set of 8 candidate models:
-# - null: no fixed effects
-# - only starvation_duration_mins_z
-# - only trt_arm
-# - only sodium_level
-# - starv+arm
-# - starv+salt
-# - arm+salt
-# - full
+# Each response variable gets the same 8 candidate models (fixed effects below).
+# Every model also has a random intercept for start_date.
+candidate_fixed_effects <- c(
+  null = "1",
+  starv = "starvation_duration_mins_z",
+  arm = "trt_arm",
+  salt = "sodium_level",
+  starv_arm = "starvation_duration_mins_z + trt_arm",
+  starv_salt = "starvation_duration_mins_z + sodium_level",
+  arm_salt = "trt_arm + sodium_level",
+  full = "starvation_duration_mins_z + trt_arm + sodium_level"
+)
+
 # glmmTMB must be used for time preference, because glmer does not support
 # beta_family, so it has been used for all the models over glmer for consistency
 fit_candidates <- function(response_var, data, family) {
   create_formula <- function(fixed_effects) {
     as.formula(paste(response_var, "~", fixed_effects, "+ (1|start_date)"))
   }
-  models <- list(
-    null = glmmTMB(formula = create_formula("1"), data = data, family = family, na.action = "na.fail"),
-    starv = glmmTMB(formula = create_formula("starvation_duration_mins_z"), data = data, family = family, na.action = "na.fail"),
-    arm = glmmTMB(formula = create_formula("trt_arm"), data = data, family = family, na.action = "na.fail"),
-    salt = glmmTMB(formula = create_formula("sodium_level"), data = data, family = family, na.action = "na.fail"),
-    starv_arm = glmmTMB(formula = create_formula("starvation_duration_mins_z + trt_arm"), data = data, family = family, na.action = "na.fail"),
-    starv_salt = glmmTMB(formula = create_formula("starvation_duration_mins_z + sodium_level"), data = data, family = family, na.action = "na.fail"),
-    arm_salt = glmmTMB(formula = create_formula("trt_arm + sodium_level"), data = data, family = family, na.action = "na.fail"),
-    full = glmmTMB(formula = create_formula("starvation_duration_mins_z + trt_arm + sodium_level"), data = data, family = family, na.action = "na.fail")
-  )
+  models <- lapply(candidate_fixed_effects, function(fixed_effects) {
+    glmmTMB(
+      formula = create_formula(fixed_effects),
+      data = data,
+      family = family,
+      na.action = "na.fail"
+    )
+  })
 
   selection_table <- model.sel(models)
 
@@ -78,6 +80,7 @@ message(sprintf(
   visits_results$best_model_name
 ))
 
+dir.create(here::here("results"), showWarnings = FALSE)
 saveRDS(
   list(choice = choice_results, time = time_results, visits = visits_results),
   here::here("results", "model_results.rds")

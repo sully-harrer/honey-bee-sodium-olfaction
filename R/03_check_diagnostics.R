@@ -9,6 +9,10 @@ library(DHARMa)
 model_results <- readRDS(here::here("results", "model_results.rds"))
 trial_data <- readRDS(here::here("data", "processed", "trial_data_clean.rds"))
 
+# DHARMa residuals are simulated, so set a seed to make them reproducible.
+# Same value as `seed` in 05_make_plots.R
+set.seed(20261019)
+
 # ------------------------------------------------------------------------------
 sim_choice <- simulateResiduals(model_results$choice$best)
 plot(sim_choice)

@@ -9,11 +9,12 @@
 # should be manually reviewed for model fit when necessary
 # ==============================================================================
 
-if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
-
 source(here::here("R", "01_clean_data.R"))
 source(here::here("R", "02_fit_models.R"))
 source(here::here("R", "04_analyze_results.R"))
 source(here::here("R", "05_make_plots.R"))
 
 message("Pipeline complete. See data/processed/, results/, and plots/.")
+
+# record the R and package versions used for this run
+print(sessionInfo())

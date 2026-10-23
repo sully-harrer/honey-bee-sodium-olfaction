@@ -250,9 +250,16 @@ qq_panel <- function(sim) {
     theme_manuscript()
 }
 
+# same as DHARMa's internal rankTransform() (DHARMa 0.5.0), copied here so
+# the script doesn't depend on a non-exported function
+rank_transform <- function(x) {
+  r <- rank(x, ties.method = "average")
+  r / max(r)
+}
+
 residual_panel <- function(sim) {
   res <- sim$scaledResiduals
-  pred <- DHARMa:::rankTransform(sim$fittedPredictedResponse)
+  pred <- rank_transform(sim$fittedPredictedResponse)
 
   # this is the same rule DHARMa uses to decide
   # between a box plot and a scatter plot
@@ -433,7 +440,7 @@ collection_sf <- st_as_sf(
 )
 
 hive_sf <- st_as_sf(
-  data.frame(longitude = -85.389338, latitude = 42.397748),
+  read.csv(here::here("data", "hive_location.csv")),
   coords = c("longitude", "latitude"),
   crs = 4326
 )
@@ -531,7 +538,10 @@ fig_s1 <- ggplot() +
     y = NULL,
     shape = NULL,
     fill = NULL,
-    caption = "Imagery \u00a9 Esri, Maxar, Earthstar Geographics"
+    caption = paste0(
+      "Imagery \u00a9 Esri, Maxar, Earthstar Geographics,\n",
+      "and the GIS User Community"
+    )
   ) +
   theme_void(base_size = base_size, base_family = font_family) +
   theme(

@@ -6,6 +6,7 @@
 #                 C: number of visits to each arm
 #   Figure S1 - Collection locations of honey bees (satellite map)
 #   Figure S2 - DHARMa residual checks for the three selected models
+#   Figure S3 - Sodium level effect on the three metrics
 #
 # Requires 01_clean_data.R and 02_fit_models.R to have been run.
 #
@@ -49,6 +50,7 @@ tag_label <- function(i) if (tag_case == "upper") LETTERS[i] else letters[i]
 fig2_size <- c(width = 174, height = 70)
 fig_s1_size <- c(width = 84, height = 84)
 fig_s2_size <- c(width = 174, height = 190)
+fig_s3_size <- c(width = 174, height = 70)
 png_dpi <- 600
 
 arm_colors <- c(ctrl = "#0072B2", trt = "#E69F00")
@@ -399,6 +401,106 @@ figure_s2 <- wrap_plots(s2_panels, design = s2_design) +
   plot_layout(heights = c(0.08, 0.1, 1, 0.1, 1, 0.1, 1))
 
 save_figure(figure_s2, "FigureS2_DHARMa_Checks", fig_s2_size)
+
+
+# ==============================================================================
+# Figure S3: Sodium level effect
+# Raw per-trial responses with population-level predictions
+# from the salt model for each response
+# ==============================================================================
+
+sodium_levels <- c("high", "low") # high is the reference level
+sodium_labels <- c(high = "High", low = "Low")
+
+predict_by_sodium <- function(model) {
+  newdata <- data.frame(
+    sodium_level = factor(sodium_levels, levels = levels(trial_data$sodium_level)),
+    start_date = NA
+  )
+  pred <- predict(model, newdata, type = "link", se.fit = TRUE, re.form = NA)
+  # all three families use a logit link
+  data.frame(
+    x = seq_along(sodium_levels),
+    est = plogis(pred$fit),
+    lower = plogis(pred$fit - qnorm(0.975) * pred$se.fit),
+    upper = plogis(pred$fit + qnorm(0.975) * pred$se.fit)
+  )
+}
+
+sodium_p_value <- function(model) {
+  coefs <- summary(model)$coefficients$cond
+  coefs[grep("sodium", rownames(coefs), ignore.case = TRUE), "Pr(>|z|)"]
+}
+
+set.seed(seed)
+sodium_data <- trial_data |>
+  mutate(
+    prop_trt_visits = if_else(
+      trt_visits + ctrl_visits > 0,
+      trt_visits / (trt_visits + ctrl_visits),
+      NA_real_
+    ),
+    x = match(sodium_level, sodium_levels) + runif(n(), -0.25, 0.25)
+  )
+
+sodium_panel <- function(response, model, y_label) {
+  raw <- filter(sodium_data, !is.na(.data[[response]]))
+  pred <- predict_by_sodium(model)
+
+  ggplot(raw, aes(x = x, y = .data[[response]])) +
+    geom_hline(
+      yintercept = 0.5, linetype = "dashed",
+      linewidth = pt(0.5), color = "gray40"
+    ) +
+    geom_point(
+      color = "gray55",
+      alpha = 0.4,
+      size = 1.1,
+      stroke = 0
+    ) +
+    geom_pointrange(
+      data = pred,
+      aes(x = x, y = est, ymin = lower, ymax = upper),
+      inherit.aes = FALSE,
+      color = "black",
+      size = 0.35,
+      linewidth = pt(1.2)
+    ) +
+    annotate("text",
+      x = mean(seq_along(sodium_levels)), y = 1.1,
+      label = sprintf("p = %.2f", sodium_p_value(model)),
+      size = base_size / ggplot2::.pt, family = font_family
+    ) +
+    scale_x_continuous(
+      breaks = seq_along(sodium_levels),
+      labels = sodium_labels[sodium_levels],
+      limits = c(0.5, length(sodium_levels) + 0.5),
+      expand = c(0, 0)
+    ) +
+    scale_y_continuous(breaks = seq(0, 1, 0.25)) +
+    # p-value sits above the panel, so let it draw outside the y range
+    coord_cartesian(ylim = c(0, 1), clip = "off") +
+    labs(x = "Sodium level", y = y_label) +
+    theme_manuscript() +
+    theme(plot.margin = margin(12, 4, 4, 4))
+}
+
+figure_s3 <- sodium_panel(
+  "chose_trt", model_results$choice$salt,
+  "Probability of choosing\nsalty first"
+) +
+  sodium_panel(
+    "prop_trt_time_secs", model_results$time$salt,
+    "Proportion of time\nin salty arm"
+  ) +
+  sodium_panel(
+    "prop_trt_visits", model_results$visits$salt,
+    "Proportion of visits\nto salty arm"
+  ) +
+  plot_layout(ncol = 3) +
+  plot_annotation(tag_levels = tag_levels)
+
+save_figure(figure_s3, "FigureS3_Sodium_Level", fig_s3_size)
 
 
 # ==============================================================================

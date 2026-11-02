@@ -2,7 +2,7 @@
 # Produces all figures for the manuscript:
 #   Figure 2  - Behavioral metrics (three panels)
 #                 A: first arm choice (binary)
-#                 B: time spent in each arm
+#                 B: proportion of time spent in the sodium arm
 #                 C: number of visits to each arm
 #   Figure S1 - Collection locations of honey bees (satellite map)
 #   Figure S2 - DHARMa residual checks for the three selected models
@@ -55,7 +55,7 @@ png_dpi <- 600
 
 arm_colors <- c(ctrl = "#0072B2", trt = "#E69F00")
 arm_shapes <- c(ctrl = 16, trt = 17)
-arm_labels <- c(ctrl = "Control", trt = "Salty")
+arm_labels <- c(ctrl = "Control", trt = "Sodium")
 signal_color <- "#D55E00"
 
 pt <- function(points) points / (ggplot2::.pt * 72.27 / 96)
@@ -103,60 +103,81 @@ save_figure <- function(plot, name, size) {
 
 trial_data <- readRDS(here::here("data", "processed", "trial_data_clean.rds"))
 
-set.seed(seed)
+# one jittered column of a 0-1 response with its mean and bootstrapped 95% CI
+# `points` is the geom_point() layer, so each panel can style its own points
+single_column_plot <- function(data, response, points, y_label,
+                               x_limits = c(0.55, 1.45)) {
+  set.seed(seed)
+  data$x <- 1 + runif(nrow(data), -0.3, 0.3) # computes horizontal jitter in advance
+
+  # equivalent to stat_summary(fun.data = "mean_cl_boot") but
+  # computed in advance
+  set.seed(seed)
+  ci <- Hmisc::smean.cl.boot(data[[response]])
+  summary_data <- data.frame(
+    x = 1,
+    mean = ci[["Mean"]],
+    lower = ci[["Lower"]],
+    upper = ci[["Upper"]]
+  )
+
+  ggplot(data, aes(x = x, y = .data[[response]])) +
+    geom_hline(
+      yintercept = 0.5, linetype = "dashed",
+      linewidth = pt(0.5), color = "gray40"
+    ) +
+    points +
+    geom_pointrange(
+      data = summary_data,
+      aes(x = x, y = mean, ymin = lower, ymax = upper),
+      inherit.aes = FALSE,
+      color = "black",
+      size = 0.35,
+      linewidth = pt(1.2)
+    ) +
+    scale_x_continuous(limits = x_limits, breaks = NULL) +
+    scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
+    labs(x = NULL, y = y_label) +
+    theme_manuscript() +
+    theme(axis.line.x = element_line(linewidth = axis_lw))
+}
 
 choice_data <- trial_data |>
   mutate(
     choice = factor(if_else(chose_trt == 1, "trt", "ctrl"),
       levels = c("ctrl", "trt")
-    ),
-    x = 1 + runif(n(), -0.3, 0.3) # computes horizontal jitter in advance
+    )
   )
 
-# mean with bootstrapped 95% CI
-# equivalent to stat_summary(fun.data = "mean_cl_boot") but
-# computed in advance
-set.seed(seed)
-choice_ci <- Hmisc::smean.cl.boot(trial_data$chose_trt)
-choice_summary <- data.frame(
-  x = 1,
-  mean = choice_ci[["Mean"]],
-  lower = choice_ci[["Lower"]],
-  upper = choice_ci[["Upper"]]
-)
+# labels sit to the right of the jittered points, which span x = 0.7-1.3
+choice_label_x <- 1.34
 
-choice_plot <- ggplot(choice_data, aes(x = x, y = chose_trt)) +
-  geom_hline(
-    yintercept = 0.5, linetype = "dashed",
-    linewidth = pt(0.5), color = "gray40"
-  ) +
+choice_plot <- single_column_plot(
+  choice_data, "chose_trt",
   geom_point(
     aes(color = choice, shape = choice),
     alpha = 0.4,
     size = 1.1,
     stroke = 0
-  ) +
-  geom_pointrange(
-    data = choice_summary,
-    aes(x = x, y = mean, ymin = lower, ymax = upper),
-    inherit.aes = FALSE,
-    color = "black",
-    size = 0.35,
-    linewidth = pt(1.2)
+  ),
+  "Probability of choosing\nsodium first",
+  x_limits = c(0.55, 1.7)
+) +
+  annotate("text",
+    x = choice_label_x, y = c(1, 0),
+    label = arm_labels[c("trt", "ctrl")],
+    color = arm_colors[c("trt", "ctrl")],
+    hjust = 0,
+    size = base_size / ggplot2::.pt, family = font_family
   ) +
   scale_color_manual(values = arm_colors) +
-  scale_shape_manual(values = arm_shapes) +
-  scale_x_continuous(limits = c(0.55, 1.45), breaks = NULL) +
-  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
-  labs(x = NULL, y = "Probability of choosing\nsalty first") +
-  theme_manuscript() +
-  theme(axis.line.x = element_line(linewidth = axis_lw))
+  scale_shape_manual(values = arm_shapes)
 
 
 arm_levels <- c("ctrl", "trt")
 
 plot_data <- trial_data |>
-  select(trial_ID, trt_time_secs, ctrl_time_secs, trt_visits, ctrl_visits) |>
+  select(trial_ID, trt_visits, ctrl_visits) |>
   pivot_longer(
     cols = -trial_ID,
     names_to = c("arm", "metric"),
@@ -203,18 +224,19 @@ paired_plot <- function(data, y_label) {
     theme_manuscript()
 }
 
-time_plot <- paired_plot(
-  filter(plot_data, metric == "time_secs"),
-  "Time spent (s)"
-)
-
 visit_plot <- paired_plot(
   filter(plot_data, metric == "visits"),
   "Number of visits"
 )
 
+time_plot <- single_column_plot(
+  trial_data, "prop_trt_time_secs",
+  geom_point(color = "gray55", alpha = 0.4, size = 1.1, stroke = 0),
+  "Proportion of time\nin sodium arm"
+)
+
 figure_2 <- choice_plot + time_plot + visit_plot +
-  plot_layout(ncol = 3, widths = c(1, 1.2, 1.2)) +
+  plot_layout(ncol = 3, widths = c(1.3, 1, 1.2)) +
   plot_annotation(tag_levels = tag_levels)
 
 save_figure(figure_2, "Figure2_Behavioral_Metrics", fig2_size)
@@ -487,15 +509,15 @@ sodium_panel <- function(response, model, y_label) {
 
 figure_s3 <- sodium_panel(
   "chose_trt", model_results$choice$salt,
-  "Probability of choosing\nsalty first"
+  "Probability of choosing\nsodium first"
 ) +
   sodium_panel(
     "prop_trt_time_secs", model_results$time$salt,
-    "Proportion of time\nin salty arm"
+    "Proportion of time\nin sodium arm"
   ) +
   sodium_panel(
     "prop_trt_visits", model_results$visits$salt,
-    "Proportion of visits\nto salty arm"
+    "Proportion of visits\nto sodium arm"
   ) +
   plot_layout(ncol = 3) +
   plot_annotation(tag_levels = tag_levels)

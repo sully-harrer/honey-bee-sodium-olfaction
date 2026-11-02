@@ -190,7 +190,9 @@ plot_data <- trial_data |>
     x_point = x_box + runif(n(), -0.07, 0.07)
   )
 
-paired_plot <- function(data, y_label) {
+paired_plot <- function(data, y_label,
+                        breaks = seq_along(arm_levels),
+                        labels = arm_labels[arm_levels]) {
   ggplot(data, aes(y = value)) +
     geom_line(
       aes(x = x_point, group = trial_ID),
@@ -199,11 +201,12 @@ paired_plot <- function(data, y_label) {
       linewidth = pt(0.4)
     ) +
     geom_boxplot(
-      aes(x = x_box, group = arm, color = arm, fill = arm),
+      aes(x = x_box, group = x_box, color = arm, fill = arm),
       alpha = 0.25,
       width = 0.6,
       linewidth = pt(0.7),
-      outlier.shape = NA
+      outlier.shape = NA,
+      orientation = "x"
     ) +
     geom_point(
       aes(x = x_point, color = arm, shape = arm),
@@ -215,9 +218,9 @@ paired_plot <- function(data, y_label) {
     scale_fill_manual(values = arm_colors) +
     scale_shape_manual(values = arm_shapes) +
     scale_x_continuous(
-      breaks = seq_along(arm_levels),
-      labels = arm_labels[arm_levels],
-      limits = c(0.5, length(arm_levels) + 0.5),
+      breaks = breaks,
+      labels = labels,
+      limits = range(breaks) + c(-0.5, 0.5),
       expand = c(0, 0)
     ) +
     labs(x = NULL, y = y_label) +
@@ -427,8 +430,8 @@ save_figure(figure_s2, "FigureS2_DHARMa_Checks", fig_s2_size)
 
 # ==============================================================================
 # Figure S3: Sodium level effect
-# Raw per-trial responses with population-level predictions
-# from the salt model for each response
+# A-B: raw per-trial responses with population-level predictions from the
+# salt model. C: paired visit counts, drawn like Figure 2C, split by sodium level
 # ==============================================================================
 
 sodium_levels <- c("high", "low") # high is the reference level
@@ -449,77 +452,102 @@ predict_by_sodium <- function(model) {
   )
 }
 
-sodium_p_value <- function(model) {
-  coefs <- summary(model)$coefficients$cond
-  coefs[grep("sodium", rownames(coefs), ignore.case = TRUE), "Pr(>|z|)"]
-}
-
 set.seed(seed)
-sodium_data <- trial_data |>
-  mutate(
-    prop_trt_visits = if_else(
-      trt_visits + ctrl_visits > 0,
-      trt_visits / (trt_visits + ctrl_visits),
-      NA_real_
-    ),
-    x = match(sodium_level, sodium_levels) + runif(n(), -0.25, 0.25)
-  )
+sodium_data <- choice_data |>
+  mutate(x = match(sodium_level, sodium_levels) + runif(n(), -0.25, 0.25))
 
-sodium_panel <- function(response, model, y_label) {
-  raw <- filter(sodium_data, !is.na(.data[[response]]))
-  pred <- predict_by_sodium(model)
-
-  ggplot(raw, aes(x = x, y = .data[[response]])) +
+# `points` is the geom_point() layer, as in single_column_plot()
+sodium_panel <- function(response, model, y_label,
+                         points = geom_point(
+                           color = "gray55", alpha = 0.4, size = 1.1, stroke = 0
+                         ),
+                         x_limits = c(0.5, length(sodium_levels) + 0.5)) {
+  ggplot(sodium_data, aes(x = x, y = .data[[response]])) +
     geom_hline(
       yintercept = 0.5, linetype = "dashed",
       linewidth = pt(0.5), color = "gray40"
     ) +
-    geom_point(
-      color = "gray55",
-      alpha = 0.4,
-      size = 1.1,
-      stroke = 0
-    ) +
+    points +
     geom_pointrange(
-      data = pred,
+      data = predict_by_sodium(model),
       aes(x = x, y = est, ymin = lower, ymax = upper),
       inherit.aes = FALSE,
       color = "black",
       size = 0.35,
       linewidth = pt(1.2)
     ) +
-    annotate("text",
-      x = mean(seq_along(sodium_levels)), y = 1.1,
-      label = sprintf("p = %.2f", sodium_p_value(model)),
-      size = base_size / ggplot2::.pt, family = font_family
-    ) +
     scale_x_continuous(
       breaks = seq_along(sodium_levels),
       labels = sodium_labels[sodium_levels],
-      limits = c(0.5, length(sodium_levels) + 0.5),
+      limits = x_limits,
       expand = c(0, 0)
     ) +
-    scale_y_continuous(breaks = seq(0, 1, 0.25)) +
-    # p-value sits above the panel, so let it draw outside the y range
-    coord_cartesian(ylim = c(0, 1), clip = "off") +
+    scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.25)) +
     labs(x = "Sodium level", y = y_label) +
-    theme_manuscript() +
-    theme(plot.margin = margin(12, 4, 4, 4))
+    theme_manuscript()
 }
 
-figure_s3 <- sodium_panel(
-  "chose_trt", model_results$choice$salt,
-  "Probability of choosing\nsodium first"
+# each sodium level gets its own Control/Sodium pair, shifted right by
+# sodium_offset. Facets would be simpler, but their strips throw off the
+# x-axis alignment with panels A and B
+sodium_offset <- 2.4
+
+sodium_visits_data <- plot_data |>
+  filter(metric == "visits") |>
+  left_join(select(trial_data, trial_ID, sodium_level), by = "trial_ID") |>
+  mutate(
+    shift = (match(sodium_level, sodium_levels) - 1) * sodium_offset,
+    x_box = x_box + shift,
+    x_point = x_point + shift
+  )
+
+sodium_visit_breaks <- c(outer(seq_along(arm_levels), (seq_along(sodium_levels) - 1) * sodium_offset, "+"))
+
+sodium_visit_plot <- paired_plot(
+  sodium_visits_data, "Number of visits",
+  breaks = sodium_visit_breaks,
+  labels = rep(arm_labels[arm_levels], length(sodium_levels))
 ) +
+  annotate("text",
+    x = mean(seq_along(arm_levels)) + (seq_along(sodium_levels) - 1) * sodium_offset,
+    y = max(sodium_visits_data$value) * 1.08,
+    label = sodium_labels[sodium_levels],
+    size = title_size / ggplot2::.pt, family = font_family
+  ) +
+  labs(x = "Sodium level")
+
+# styled like Figure 2A, with arm labels to the right of the low sodium
+# points, which span x = 1.75-2.25
+sodium_choice_label_x <- length(sodium_levels) + 0.29
+
+sodium_choice_plot <- sodium_panel(
+  "chose_trt", model_results$choice$salt,
+  "Probability of choosing\nsodium first",
+  points = geom_point(
+    aes(color = choice, shape = choice),
+    alpha = 0.4,
+    size = 1.1,
+    stroke = 0
+  ),
+  x_limits = c(0.5, length(sodium_levels) + 0.95)
+) +
+  annotate("text",
+    x = sodium_choice_label_x, y = c(1, 0),
+    label = arm_labels[c("trt", "ctrl")],
+    color = arm_colors[c("trt", "ctrl")],
+    hjust = 0,
+    size = base_size / ggplot2::.pt, family = font_family
+  ) +
+  scale_color_manual(values = arm_colors) +
+  scale_shape_manual(values = arm_shapes)
+
+figure_s3 <- sodium_choice_plot +
   sodium_panel(
     "prop_trt_time_secs", model_results$time$salt,
     "Proportion of time\nin sodium arm"
   ) +
-  sodium_panel(
-    "prop_trt_visits", model_results$visits$salt,
-    "Proportion of visits\nto sodium arm"
-  ) +
-  plot_layout(ncol = 3) +
+  sodium_visit_plot +
+  plot_layout(ncol = 3, widths = c(1.4, 1, 1.4)) +
   plot_annotation(tag_levels = tag_levels)
 
 save_figure(figure_s3, "FigureS3_Sodium_Level", fig_s3_size)

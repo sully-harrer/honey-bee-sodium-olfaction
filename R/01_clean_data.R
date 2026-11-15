@@ -85,6 +85,9 @@ trial_data <- trial_data |>
     by = "batch_id_char"
   ) |>
   mutate(
+    # whole numbers now that the joins are done (cage_id is a factor, so go through text)
+    cage_id = as.integer(as.character(cage_id)),
+    parent_batch_id = as.integer(parent_batch_id),
     starvation_duration_mins_z = as.numeric(scale(starvation_duration_mins)),
     prop_trt_time_secs = trt_time_secs / (trt_time_secs + ctrl_time_secs)
   ) |>

@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this data, code, or Y-maze design, please cite it as below."
-type: software
+type: dataset
 title: "Data, code, and Y-maze design for: Honey bees show no olfactory preference for sodium-enriched nectar"
 abstract: >-
   Data, R analysis code, and laser-cut Y-maze design files for a behavioral
@@ -9,7 +9,15 @@ abstract: >-
 authors:
   - given-names: Sully
     family-names: Harrer
-license: MIT
+    orcid: "https://orcid.org/0009-0004-8062-6392"
+    affiliation: "University of Colorado Boulder"
+  - given-names: Ashley L.
+    family-names: Darst
+    orcid: "https://orcid.org/0000-0002-5625-7724"
+    affiliation: "Michigan State University"
+license:
+  - MIT
+  - CC-BY-4.0
 repository-code: "https://github.com/sully-harrer/honey-bee-sodium-olfaction"
 keywords:
   - Apis mellifera
@@ -19,14 +27,3 @@ keywords:
   - Y-maze
   - foraging behavior
 version: 1.0.0
-# TODO(submission): uncomment and set when tagging v1.0.0 and minting the Zenodo DOI
-# date-released: YYYY-MM-DD
-# doi: 10.5281/zenodo.XXXXXXX
-# TODO(submission): fill in once the paper is accepted (journal, year, volume, DOI)
-preferred-citation:
-  type: article
-  title: "Honey bees show no olfactory preference for sodium-enriched nectar"
-  authors:
-    - given-names: Sully
-      family-names: Harrer
-  journal: "TODO(submission): journal name"

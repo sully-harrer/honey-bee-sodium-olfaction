@@ -1,6 +1,6 @@
 # Data dictionary
 
-All data were collected in June–July 2026 at the W.K. Kellogg Biological Station (Hickory Corners,
+All data were collected in June-July 2026 at the W.K. Kellogg Biological Station (Hickory Corners,
 Michigan, USA). Subjects are western honey bees (*Apis mellifera*).
 
 The raw files in this folder are the data as entered from the datasheets. The pipeline only reads them, it
@@ -19,7 +19,7 @@ never modifies them. `processed/trial_data_clean.csv` is written by `R/01_clean_
 - Dates: `M/D/YYYY` (e.g. `6/24/2026`)
 - Times of day: `H:MM:SS AM/PM` (e.g. `9:30:00 AM`), local time
 - Durations: `M:SS` (minutes:seconds, e.g. `2:05`)
-- Initials: 2–3 uppercase letters. Several people are listed in one cell separated by `, ` (e.g.
+- Initials: 2-3 uppercase letters. Several people are listed in one cell separated by `, ` (e.g.
   `SCH, RMB, AGH`)
 - Coordinates: decimal degrees, WGS 84
 - Missing or blank values: empty cell
@@ -38,7 +38,7 @@ never modifies them. `processed/trial_data_clean.csv` is written by `R/01_clean_
 | Column | Datasheet name | Description | Type | Values / units |
 |---|---|---|---|---|
 | `start_date` | Date | Date the trial was run | date | `M/D/YYYY` |
-| `cage_id` | Cage # | Cage the bee was taken from | integer | 1–4 |
+| `cage_id` | Cage # | Cage the bee was taken from | integer | 1-4 |
 | `species` | Species | Species of the test subject | text | `Apis mellifera` |
 | `batch_id` | Batch ID | Nectar batch used for the trial | text | `<number><letter>`, e.g. `1A`; must be in `full_batch_data.csv` |
 | `starving_since` | Starvation start time | Time the bee's starvation period began (same day as `start_date`) | time | `H:MM:SS AM/PM` |
@@ -47,8 +47,8 @@ never modifies them. `processed/trial_data_clean.csv` is written by `R/01_clean_
 | `trt_arm` | Na Arm | Y-maze arm holding the sodium-enriched nectar | text | `L` or `R` |
 | `first_choice` | First Choice | Y-maze arm the bee entered first | text | `L` or `R` |
 | `latency` | Time to first choice | Time from the start of the trial to the bee first entering an arm | duration | `M:SS` |
-| `left_visits` | L arm visits | Number of entries into the left arm during the trial | integer | greater than or equal to 0 |
-| `right_visits` | R arm visits | Number of entries into the right arm during the trial | integer | greater than or equal to 0 |
+| `left_visits` | L arm visits | Number of entries into the left arm during the trial | integer | 0 or more |
+| `right_visits` | R arm visits | Number of entries into the right arm during the trial | integer | 0 or more |
 | `left_time` | Time in L | Total time spent in the left arm during the trial | duration | `M:SS` |
 | `right_time` | Time in R | Total time spent in the right arm during the trial | duration | `M:SS` |
 | `is_excluded` | Excl? | Whether the trial is excluded from analysis (reason in `notes`) | logical | `TRUE` / `FALSE` |
@@ -62,12 +62,12 @@ never modifies them. `processed/trial_data_clean.csv` is written by `R/01_clean_
 | `date` | Date | Date of collection | date | `M/D/YYYY` |
 | `time` | Collection start time | Time collection began | time | `H:MM:SS AM/PM` |
 | `collectors` | Collector(s) | Initials of the people who collected the bees | text | initials, `, `-separated |
-| `num_bees` | # bees | Number of bees collected | integer | > 0 |
+| `num_bees` | # bees | Number of bees collected | integer | more than 0 |
 | `species` | Species | Species collected | text | `Apis mellifera` |
 | `location` | Location | Collection site | text | `"latitude, longitude"` in decimal degrees, e.g. `"42.4033115, -85.3841674"` |
 | `flower` | Flower | Plant the bees were collected from | text | scientific name |
-| `cage_id` | Cage num | Cage the bees were placed in | integer | 1–4 |
-| `parent_batch_id` | Batch ID | Nectar batch the bees were fed while in the cage, before testing | integer | > 0; the number at the start of a `full_batch_data.csv` `batch_id` |
+| `cage_id` | Cage num | Cage the bees were placed in | integer | 1-4 |
+| `parent_batch_id` | Batch ID | Nectar batch the bees were fed while in the cage, before testing | integer | more than 0; the number at the start of a `full_batch_data.csv` `batch_id` |
 | `notes` | Notes | Observations about the collection | text | free text |
 
 Cage numbers are reused, so a cage is identified by (`cage_id`, `parent_batch_id`).
@@ -86,7 +86,7 @@ the amounts are mg of NaCl.
 | `mix_date` | Mixing date | Date the water and honey were mixed | date | `M/D/YYYY` |
 | `mix_time` | Mixing time | Time the water and honey were mixed | time | `H:MM:SS AM/PM` |
 | `target_sodium` | Target Na | NaCl needed to bring the batch to its target concentration | number | mg; 306.81 (35 mM, `low`) or 30681 (3500 mM, `high`) |
-| `actual_sodium` | Actual Na | NaCl actually added | number | mg; greater than or equal to 0 |
+| `actual_sodium` | Actual Na | NaCl actually added | number | mg; 0 or more |
 | `sodium_add_date` | Date Na added | Date NaCl was added | date | `M/D/YYYY`; on or after `mix_date` |
 | `sodium_add_time` | Time Na added | Time NaCl was added | time | `H:MM:SS AM/PM` |
 | `notes` | Notes | Observations about the batch | text | free text |
@@ -106,19 +106,19 @@ Written by `R/01_clean_data.R`. Do not edit by hand. Excluded trials (`is_exclud
 and rows are sorted by trial start time. It keeps the trial columns above except `is_excluded`, which is
 dropped, and `starving_since`, `start_time`, `left_visits`, `right_visits`, `left_time` and `right_time`,
 which are replaced by the columns below. `latency` is converted to seconds. `start_date` is written as
-`YYYY-MM-DD`. Date-times are written as `YYYY-MM-DD HH:MM:SS`, local time.
+`YYYY-MM-DD`. Date-times are written as `YYYY-MM-DD HH:MM:SS` in the timezone local to the field station (Eastern Time). Columns are in this order: `trial_ID`, the kept trial columns (`start_date`, `cage_id`, `species`, `batch_id`, `temp`, `trt_arm`, `first_choice`, `latency`, `sodium_level`, `notes`), then the columns in the table below.
 
-| Column | Description | Units |
+| Column | Description | Values / units |
 |---|---|---|
-| `trial_ID` | Trial number, in chronological order | 1–100 |
+| `trial_ID` | Trial number, in chronological order | 1-100 |
 | `starving_start` | Date-time the starvation period began | date-time |
 | `trial_start` | Date-time the trial began | date-time |
 | `starvation_duration_mins` | `trial_start` − `starving_start` | minutes |
 | `chose_trt` | Whether the first choice was the treatment arm (`first_choice == trt_arm`) | 1 / 0 |
 | `trt_visits`, `ctrl_visits` | Visits to the treatment and control arms (from `left_visits`/`right_visits` via `trt_arm`) | count |
 | `trt_time_secs`, `ctrl_time_secs` | Time in the treatment and control arms | seconds |
-| `prop_trt_time_secs` | `trt_time_secs / (trt_time_secs + ctrl_time_secs)` | proportion, 0–1 |
-| `parent_batch_id` | Number at the start of `batch_id` | integer |
+| `parent_batch_id` | Number at the start of `batch_id` (e.g. `4` for `4C`) | integer |
 | `location`, `flower` | From `full_collection_data.csv` | as above |
 | `sodium_add_datetime` | Date-time NaCl was added to the trial's batch | date-time |
-| `starvation_duration_mins_z` | z-scores (mean 0, SD 1) of how long individual bees were starved before their trial, computed across the 100 included trials | SD units |
+| `starvation_duration_mins_z` | z-score (mean 0, SD 1) of `starvation_duration_mins`, computed across the 100 included trials | SD units |
+| `prop_trt_time_secs` | `trt_time_secs / (trt_time_secs + ctrl_time_secs)` | proportion, 0-1 |

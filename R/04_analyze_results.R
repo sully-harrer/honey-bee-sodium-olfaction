@@ -23,8 +23,6 @@ visits_prop <- sum(trial_data$trt_visits, na.rm = TRUE) / sum(
   na.rm = TRUE
 )
 
-
-# make model selection table
 model_results <- readRDS(here::here("results", "model_results.rds"))
 
 make_model_table <- function(results, response_name) {
@@ -37,7 +35,6 @@ make_model_table <- function(results, response_name) {
       logLik,
       df
     ) |>
-    # Best-supported model first
     arrange(delta) |>
     mutate(
       Response = response_name
@@ -89,8 +86,7 @@ results_table <- results_table |>
     `ΔAICc` = delta,
     `Log likelihood` = logLik
   )
-# Markdown + the GDocifyMd extension was the easiest way to get
-# this formatted quickly in Google Docs (at least that i found)
+# written as a markdown pipe table so I can convert it into a formatted table in Google Docs
 markdown_table <- knitr::kable(
   results_table,
   format = "pipe",
@@ -98,7 +94,7 @@ markdown_table <- knitr::kable(
 )
 writeLines(markdown_table, here::here("results", "model_selection.md"))
 
-# selected model stats
+# intercept and CI of the best model are both back-transformed
 get_intercept <- function(model) {
   coefs <- summary(model)$coefficients$cond["(Intercept)", ]
   ci <- plogis(confint(model, parm = "beta_", method = "wald"))
@@ -115,7 +111,7 @@ choice_res <- get_intercept(model_results$choice$best)
 time_res <- get_intercept(model_results$time$best)
 visits_res <- get_intercept(model_results$visits$best)
 
-# for second paragraph stats about sodium level's impact
+# gets info from "salt" model for results comparison to the null models
 get_sodium <- function(model) {
   coefs <- summary(model)$coefficients$cond
   row <- grep("sodium", rownames(coefs), ignore.case = TRUE)
@@ -133,7 +129,6 @@ choice_sodium <- get_sodium(model_results$choice$salt)
 time_sodium <- get_sodium(model_results$time$salt)
 visits_sodium <- get_sodium(model_results$visits$salt)
 
-# print results
 report_result <- function(label, res, stat = "estimate") {
   f <- function(x) sprintf("%.2f", x)
   message(

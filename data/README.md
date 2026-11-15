@@ -103,10 +103,10 @@ Used only to mark the hive in Figure S1.
 ## `processed/trial_data_clean.csv`
 
 Written by `R/01_clean_data.R`. Do not edit by hand. Excluded trials (`is_excluded == TRUE`) are removed,
-and rows are sorted by trial start time. It keeps the trial columns above except `starving_since`,
-`start_time`, `left_visits`, `right_visits`, `left_time` and `right_time`, which are replaced by the
-columns below. `latency` is converted to seconds. Date-times are written as `YYYY-MM-DD HH:MM:SS`, local
-time.
+and rows are sorted by trial start time. It keeps the trial columns above except `is_excluded`, which is
+dropped, and `starving_since`, `start_time`, `left_visits`, `right_visits`, `left_time` and `right_time`,
+which are replaced by the columns below. `latency` is converted to seconds. `start_date` is written as
+`YYYY-MM-DD`. Date-times are written as `YYYY-MM-DD HH:MM:SS`, local time.
 
 | Column | Description | Units |
 |---|---|---|
@@ -119,10 +119,6 @@ time.
 | `trt_time_secs`, `ctrl_time_secs` | Time in the treatment and control arms | seconds |
 | `prop_trt_time_secs` | `trt_time_secs / (trt_time_secs + ctrl_time_secs)` | proportion, 0–1 |
 | `parent_batch_id` | Number at the start of `batch_id` | integer |
-| `cage_id_char`, `batch_id_char` | Text copies of `cage_id` and `batch_id`, used for the joins | -- |
 | `location`, `flower` | From `full_collection_data.csv` | as above |
-| `pct_sodium_error` | `(target_sodium − actual_sodium) / target_sodium` from the trial's batch; positive = less NaCl than targeted | proportion (not %) |
 | `sodium_add_datetime` | Date-time NaCl was added to the trial's batch | date-time |
-| `time_since_sodium_added` | `trial_start` − `sodium_add_datetime` | minutes |
-| `time_of_day_hrs` | Trial start time as decimal hours | hours, e.g. 12.5 = 12:30 PM |
-| `starvation_duration_mins_z`, `temp_z`, `pct_sodium_error_z`, `time_since_sodium_added_z`, `time_of_day_hrs_z` | z-scores (mean 0, SD 1) of the matching column, computed across the 100 included trials | SD units |
+| `starvation_duration_mins_z` | z-scores (mean 0, SD 1) of how long individual bees were starved before their trial, computed across the 100 included trials | SD units |

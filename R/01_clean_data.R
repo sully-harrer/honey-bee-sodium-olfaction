@@ -63,6 +63,8 @@ trial_data <- trial_data |>
 
     # batch num needs to be gotten from batch_id. e.g. "4a" -> "4"
     parent_batch_id = sub("^([0-9]+).*", "\\1", as.character(batch_id)),
+
+    # text copies of the factors used for the joins and dropped after
     cage_id_char = as.character(cage_id),
     batch_id_char = as.character(batch_id)
   ) |>
@@ -79,33 +81,21 @@ trial_data <- trial_data |>
     batch_data |>
       mutate(
         batch_id_char = as.character(batch_id),
-        pct_sodium_error = (target_sodium - actual_sodium) / target_sodium,
-        sodium_add_datetime = parse_datetime(sodium_add_date, sodium_add_time),
+        sodium_add_datetime = parse_datetime(sodium_add_date, sodium_add_time)
       ) |>
-      select(pct_sodium_error, batch_id_char, sodium_add_datetime),
+      select(batch_id_char, sodium_add_datetime),
     by = "batch_id_char"
   ) |>
   mutate(
-    time_since_sodium_added = as.numeric(difftime(trial_start,
-      sodium_add_datetime,
-      units = "mins"
-    )),
-    time_of_day_hrs = hour(trial_start) + minute(trial_start) / 60,
-    across(
-      c(
-        starvation_duration_mins,
-        temp, pct_sodium_error,
-        time_since_sodium_added,
-        time_of_day_hrs
-      ),
-      \(x) as.numeric(scale(x)),
-      .names = "{.col}_z"
-    ),
-    prop_trt_time_secs = trt_time_secs / (trt_time_secs + ctrl_time_secs),
+    starvation_duration_mins_z = as.numeric(scale(starvation_duration_mins)),
+    prop_trt_time_secs = trt_time_secs / (trt_time_secs + ctrl_time_secs)
   ) |>
   arrange(trial_start) |>
   tibble::rowid_to_column("trial_ID") |>
   select(
+    -is_excluded,
+    -cage_id_char,
+    -batch_id_char,
     -starving_since,
     -start_time,
     -left_visits,
@@ -128,6 +118,11 @@ stopifnot(
 
 dir.create(here::here("data", "processed"), showWarnings = FALSE, recursive = TRUE)
 saveRDS(trial_data, here::here("data", "processed", "trial_data_clean.rds"))
-write.csv(trial_data, here::here("data", "processed", "trial_data_clean.csv"), row.names = FALSE)
+
+# start_date is written as YYYY-MM-DD in the csv only. the factor in the rds keeps
+# its M/D/YYYY levels (and their order), since it's the random effect in every model
+trial_data |>
+  mutate(start_date = format(as.Date(as.character(start_date), format = "%m/%d/%Y"))) |>
+  write.csv(here::here("data", "processed", "trial_data_clean.csv"), row.names = FALSE)
 
 message("Data has been cleaned and written to data/processed/")

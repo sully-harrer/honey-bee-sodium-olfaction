@@ -4,14 +4,28 @@
 # - clean processed data (csv and rds) located in data/processed
 # - model results located in results/
 # - all figures (produced by 05_make_plots.R) located in plots/
+# - the R session info (package versions) in results/session_info.txt
 
 # 03_check_diagnostics.R is not run here intentionally, as those diagnostics
 # should be manually reviewed for model fit when necessary
 # ==============================================================================
 
+# Figure S1 (made in 05_make_plots.R) downloads satellite map tiles,
+# so it needs an internet connection. Check for a connection here before running anything
+if (!curl::has_internet()) {
+  stop(
+    "An internet connection is required to run the pipeline ",
+    "(Figure S1 downloads satellite map tiles).",
+    call. = FALSE
+  )
+}
+
 source(here::here("R", "01_clean_data.R"))
 source(here::here("R", "02_fit_models.R"))
 source(here::here("R", "04_analyze_results.R"))
 source(here::here("R", "05_make_plots.R"))
+
+# exact R and package versions, for anyone not using renv
+writeLines(capture.output(sessionInfo()), here::here("results", "session_info.txt"))
 
 message("Pipeline complete. See data/processed/, results/, and plots/.")

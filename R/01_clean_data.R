@@ -34,8 +34,10 @@ stopifnot(
 )
 
 # helper function used in the following mutates
+# times were recorded in local time at KBS (Michigan), so the time zone is set
+# explicitly to keep results from depending on the machine's time zone
 parse_datetime <- function(date, time) {
-  as.POSIXct(paste(date, time), format = "%m/%d/%Y %I:%M:%S %p")
+  as.POSIXct(paste(date, time), format = "%m/%d/%Y %I:%M:%S %p", tz = "America/Detroit")
 }
 
 trial_data <- trial_data |>

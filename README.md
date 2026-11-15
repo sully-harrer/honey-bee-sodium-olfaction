@@ -53,10 +53,8 @@ Every column, its units, and how the files link together are described in
 Requirements:
 
 - R 4.6.1 (the version recorded in `renv.lock`)
-- The Arial font installed on the system (used in every figure)
-- An internet connection for Figure S1, which downloads Esri satellite tiles. Without one, `main.R`
-  stops with an error at Figure S1. Everything else (cleaned data, results, Figures 2, S2, and S3) has already
-  been written by then.
+- The Arial font is used in the published figures and is recommended to be installed. If it is not, the figures fall back to the system's default sans-serif font with a warning
+- An internet connection, which is required to download the satellite map tiles for Figure S1. `main.R` checks for one before running anything and stops if there isn't one
 
 From the project root, in R:
 
@@ -78,6 +76,8 @@ automatically.
 | `02_fit_models.R` | Fit 8 candidate GLMMs for each behavioral metric and compare them using AICc | `results/model_results.rds` |
 | `04_analyze_results.R` | Descriptive statistics, model-selection tables, and model estimates with 95% Wald CIs | Console output, `results/model_selection.md`, `results/estimates.csv` |
 | `05_make_plots.R` | Figure 2 (behavioral metrics), Figure S1 (bee collection locations), Figure S2 (DHARMa diagnostic plots), and Figure S3 (sodium level effect), each as a vector PDF and a 600 dpi PNG | `plots/Figure2_Behavioral_Metrics`, `plots/FigureS1_Collection_Locations`, `plots/FigureS2_DHARMa_Checks`, `plots/FigureS3_Sodium_Level` (`.pdf` and `.png`) |
+
+`main.R` also writes `results/session_info.txt`, the R and package versions from the last run.
 
 The `.rds` files are not tracked in git. Rerun the pipeline to recreate them.
 

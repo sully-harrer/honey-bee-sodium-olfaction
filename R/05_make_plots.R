@@ -14,7 +14,8 @@
 #   .pdf - vector, fonts embedded, text editable
 #   .png - 600 dpi at final print size
 #
-# Requires the Arial font to be installed on this machine.
+# Uses Arial if it's installed. Otherwise falls back to R's generic "sans" font
+# with a warning, and errors if no sans-serif font is available.
 # ==============================================================================
 
 library(dplyr)
@@ -31,12 +32,24 @@ library(prettymapr)
 # FIGURE STYLE
 # ==============================================================================
 
+# Arial is used in the published figures. if it isn't installed, fall back to
+# R's generic "sans" (the system's default sans-serif font)
 font_family <- "Arial"
 if (!font_family %in% systemfonts::system_fonts()$family) {
-  stop(
-    "The font '", font_family, "' is not installed on this machine. ",
-    "Install it, then re-run this script."
+  sans_path <- systemfonts::match_fonts("sans")$path
+  if (!nzchar(sans_path) || !file.exists(sans_path)) {
+    stop(
+      "Neither Arial nor a default sans-serif font is installed. ",
+      "Install Arial, then re-run this script.",
+      call. = FALSE
+    )
+  }
+  warning(
+    "Arial is not installed, so the figures use the system's default ",
+    "sans-serif font instead. The published figures used Arial.",
+    call. = FALSE, immediate. = TRUE
   )
+  font_family <- "sans"
 }
 
 base_size <- 8 # tick labels, legend text
@@ -501,7 +514,9 @@ sodium_visits_data <- plot_data |>
     x_point = x_point + shift
   )
 
-sodium_visit_breaks <- c(outer(seq_along(arm_levels), (seq_along(sodium_levels) - 1) * sodium_offset, "+"))
+sodium_visit_breaks <- c(outer(
+  seq_along(arm_levels), (seq_along(sodium_levels) - 1) * sodium_offset, "+"
+))
 
 sodium_visit_plot <- paired_plot(
   sodium_visits_data, "Number of visits",

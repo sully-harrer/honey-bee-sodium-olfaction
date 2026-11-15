@@ -1,0 +1,32 @@
+{
+  "title": "Data, code, and Y-maze design for: Honey bees show no olfactory preference for sodium-enriched nectar",
+  "description": "<p>Data, R analysis code, and laser-cut Y-maze design files for a behavioral study testing whether western honey bees (<em>Apis mellifera</em>) show an olfactory preference for sodium-enriched artificial nectar.</p><p>The R code is licensed under the MIT License, while the data and Y-maze design files are licensed under CC BY 4.0; the LICENSE file in each folder governs its contents.</p>",
+  "creators": [
+    {
+      "name": "Harrer, Sully",
+      "orcid": "0009-0004-8062-6392",
+      "affiliation": "University of Colorado Boulder"
+    },
+    {
+      "name": "Darst, Ashley L.",
+      "orcid": "0000-0002-5625-7724",
+      "affiliation": "Michigan State University"
+    }
+  ],
+  "upload_type": "dataset",
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "keywords": [
+    "Apis mellifera",
+    "honey bee",
+    "olfaction",
+    "sodium",
+    "Y-maze",
+    "foraging behavior"
+  ],
+  "grants": [
+    {
+      "id": "10.13039/100000001::2235783"
+    }
+  ]
+}

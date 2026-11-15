@@ -1,8 +1,5 @@
 # Honey bees show no olfactory preference for sodium-enriched nectar
 
-<!-- TODO(submission): replace XXXXXXX with the Zenodo concept record ID once v1.0.0 is archived -->
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
-
 Data, analysis code, and experimental materials for a Y-maze behavioral study investigating whether western honey bees (*Apis mellifera*) exhibit an olfactory preference for sodium-enriched artificial nectar.
 
 ## Study overview
@@ -83,14 +80,6 @@ The `.rds` files are not tracked in git. Rerun the pipeline to recreate them.
 
 **Model diagnostics:** `03_check_diagnostics.R` is not included in the automated pipeline. It generates DHARMa residual diagnostics for interactive assessment of model fit and can be run separately when needed. It uses the same random seed as `05_make_plots.R`, so its residuals match Figure S2.
 
-## Data availability
-
-<!-- TODO(submission): fill in the DOI and check the wording against the journal's requirements -->
-
-> The data, R code, and Y-maze design files supporting this study are openly available on Zenodo at
-> https://doi.org/10.5281/zenodo.XXXXXXX and on GitHub at
-> https://github.com/sully-harrer/honey-bee-sodium-olfaction.
-
 ## License
 
 Different parts of this repository are licensed separately:
@@ -110,13 +99,9 @@ If you reuse any of these, please cite the repository as described in [`CITATION
 
 Use GitHub's "Cite this repository" button, or the information in [`CITATION.cff`](CITATION.cff).
 
-<!-- TODO(submission): add the full paper citation once published -->
-
 ## Acknowledgements
 
-<!-- TODO(submission): contributors and their roles -->
-<!-- TODO(submission): KBS LTER/LTAR acknowledgement text (NSF DEB 2224712) -->
-<!-- TODO(submission): REU program funding text -->
+We thank Dave Weed for providing access to his honey bee colonies; Rowan Benda, Alex Haas, and Ceinwyn Erb for their help with sample collection; Foxy Designs LTD for fabrication of the Y-maze; Mark Hammond for support in our use of the Plant Ecology Field Lab (PEFL) space during our experiments; the W.K. Kellogg Biological Station for hosting this project and providing research facilities; and the members of the Haddad Lab for their support and for feedback on the manuscript. S.H. was funded by the Doug and Maria Bayer Scholarship Fund. A.L.D. was funded by a National Science Foundation Graduate Research Fellowship (award number 2235783).
 
 Figure S1 uses Esri World Imagery: Esri, Maxar, Earthstar Geographics, and the GIS User Community.
 World Imagery [basemap], https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9.

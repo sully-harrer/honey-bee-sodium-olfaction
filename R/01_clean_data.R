@@ -6,13 +6,11 @@
 
 library(lubridate)
 library(dplyr)
-library(tidyr)
 
 trial_data <- read.csv(here::here("data", "full_trial_data.csv"))
 collection_data <- read.csv(here::here("data", "full_collection_data.csv"))
 batch_data <- read.csv(here::here("data", "full_batch_data.csv"))
 
-exclusion_rate <- mean(trial_data$is_excluded)
 trial_data <- filter(trial_data, !is_excluded)
 n_trials <- nrow(trial_data)
 
@@ -46,7 +44,7 @@ trial_data <- trial_data |>
     starving_start = parse_datetime(start_date, starving_since),
     trial_start = parse_datetime(start_date, start_time),
 
-    # kept as a factor for possible use as a fixed/random effect later
+    # the random intercept in every model. keep its levels as they are (see the csv write below)
     start_date = as.factor(start_date),
     across(c(latency, left_time, right_time), \(x) period_to_seconds(ms(x))),
     starvation_duration_mins = as.numeric(difftime(trial_start,

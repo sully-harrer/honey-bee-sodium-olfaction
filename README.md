@@ -16,7 +16,7 @@ Data, R analysis code, and Y-maze design files for a behavioral study of whether
 
 Requirements:
 
-- R 4.6.1.
+- R 4.6.2.
 - An internet connection. Figure S1 downloads satellite map tiles, and `main.R` stops before running
   anything if there is no connection.
 - Arial is used in the published figures. Without it, the figures use the system's default sans-serif font and print a warning.

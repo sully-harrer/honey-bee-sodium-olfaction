@@ -1,6 +1,6 @@
 # Honey bees show no olfactory preference for sodium-enriched nectar
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24298905.svg)](https://doi.org/10.5281/zenodo.24298905)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24298904.svg)](https://doi.org/10.5281/zenodo.24298904)
 
 Data, R analysis code, and Y-maze design files for a behavioral study of whether western honey bees
 (*Apis mellifera*) prefer the odor of sodium-enriched artificial nectar.
